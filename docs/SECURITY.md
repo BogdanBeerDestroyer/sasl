@@ -1,3 +1,6 @@
-See the main security policy at [https://mellium.im/docs/SECURITY].
+# Security Policy
 
-[https://mellium.im/docs/SECURITY]: https://mellium.im/docs/SECURITY
+The security policy for all Mellium projects can be found in the main repo under
+[`docs/SECURITY.md`].
+
+[`docs/SECURITY.md`]: https://mellium.im/docs/SECURITY

@@ -1,3 +1,6 @@
-See the main support policy at [https://mellium.im/docs/SUPPORT].
+# Support Policy
 
-[https://mellium.im/docs/SUPPORT]: https://mellium.im/docs/SUPPORT
+The support policy for all Mellium projects can be found in the main repo under
+[`docs/SUPPORT.md`].
+
+[`docs/SUPPORT.md`]: https://mellium.im/docs/SUPPORT
