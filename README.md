@@ -18,4 +18,4 @@ which may be found in the file [LICENSE.md][LICENSE].
 
 [badge]: https://img.shields.io/badge/style-mellium%2fxmpp-green.svg?longCache=true&style=popout-square&label=issues
 [rfc4422]: https://tools.ietf.org/html/rfc4422
-[LICENSE]: ./LICENSE.md
+[LICENSE]: https://codeberg.org/mellium/xmpp/src/branch/main/LICENSE
