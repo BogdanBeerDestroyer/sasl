@@ -1,8 +1,8 @@
 # SASL
 
-[![Issue Tracker][badge]](https://github.com/mellium/xmpp/issues)
-[![GoDoc](https://godoc.org/mellium.im/sasl?status.svg)](https://godoc.org/mellium.im/sasl)
-[![Chat](https://inverse.chat/badge.svg?room=users@mellium.chat)](https://mellium.chat)
+[![Issue Tracker][badge]](https://mellium.im/issue)
+[![Docs](https://pkg.go.dev/badge/mellium.im/sasl)](https://pkg.go.dev/mellium.im/sasl)
+[![Chat](https://img.shields.io/badge/XMPP-users@mellium.chat-orange.svg)](https://mellium.chat)
 [![License](https://img.shields.io/badge/license-FreeBSD-blue.svg)](https://opensource.org/licenses/BSD-2-Clause)
 
 <a href="https://opencollective.com/mellium" alt="Donate on Open Collective"><img src="https://opencollective.com/mellium/donate/button@2x.png?color=blue" width="200"/></a>
