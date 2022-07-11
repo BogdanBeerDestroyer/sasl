@@ -13,10 +13,10 @@ import (
 
 // Define common errors used by SASL mechanisms and negotiators.
 var (
-	ErrInvalidState     = errors.New("Invalid state")
-	ErrInvalidChallenge = errors.New("Invalid or missing challenge")
-	ErrAuthn            = errors.New("Authentication error")
-	ErrTooManySteps     = errors.New("Step called too many times")
+	ErrInvalidState     = errors.New("invalid state")
+	ErrInvalidChallenge = errors.New("invalid or missing challenge")
+	ErrAuthn            = errors.New("authentication error")
+	ErrTooManySteps     = errors.New("step called too many times")
 )
 
 var (

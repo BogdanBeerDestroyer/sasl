@@ -88,7 +88,7 @@ func scram(name string, fn func() hash.Hash) Mechanism {
 			return true, append(getGS2Header(name, m), clientFirstMessage...), clientFirstMessage, nil
 		},
 		Next: func(m *Negotiator, challenge []byte, data interface{}) (more bool, resp []byte, cache interface{}, err error) {
-			if challenge == nil || len(challenge) == 0 {
+			if len(challenge) == 0 {
 				return more, resp, cache, ErrInvalidChallenge
 			}
 
@@ -138,7 +138,7 @@ func scramClientNext(name string, fn func() hash.Hash, m *Negotiator, challenge 
 				// version of SCRAM, its presence in a client or a server message
 				// MUST cause authentication failure when the attribute is parsed by
 				// the other end.
-				err = errors.New("Server sent reserved attribute `m'")
+				err = errors.New("server sent reserved attribute `m'")
 				return
 			}
 			if remain == nil {
@@ -148,13 +148,13 @@ func scramClientNext(name string, fn func() hash.Hash, m *Negotiator, challenge 
 
 		switch {
 		case iter < 0:
-			err = errors.New("Iteration count is invalid")
+			err = errors.New("iteration count is invalid")
 			return
 		case nonce == nil || !bytes.HasPrefix(nonce, m.Nonce()):
-			err = errors.New("Server nonce does not match client nonce")
+			err = errors.New("server nonce does not match client nonce")
 			return
 		case salt == nil:
-			err = errors.New("Server sent empty salt")
+			err = errors.New("server sent empty salt")
 			return
 		}
 
@@ -162,16 +162,19 @@ func scramClientNext(name string, fn func() hash.Hash, m *Negotiator, challenge 
 		tlsState := m.TLSState()
 		var channelBinding []byte
 		if strings.HasSuffix(name, "-PLUS") {
+			//lint:ignore SA1019 TLS unique must be supported by SCRAM
 			if tlsState == nil || len(tlsState.TLSUnique) == 0 {
 				err = errors.New("sasl: SCRAM with channel binding requires a TLS connection state with valid tls-unique data")
 				return
 			}
 			channelBinding = make(
 				[]byte,
+				//lint:ignore SA1019 TLS unique must be supported by SCRAM
 				2+base64.StdEncoding.EncodedLen(len(gs2Header)+len(tlsState.TLSUnique)),
 			)
 			channelBinding[0] = 'c'
 			channelBinding[1] = '='
+			//lint:ignore SA1019 TLS unique must be supported by SCRAM
 			base64.StdEncoding.Encode(channelBinding[2:], append(gs2Header, tlsState.TLSUnique...))
 		} else {
 			channelBinding = make(

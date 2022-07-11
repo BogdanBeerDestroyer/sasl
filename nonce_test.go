@@ -1,6 +1,6 @@
 // Copyright 2016 The Mellium Contributors.
-// Use of this source code is governed by the BSD 2-clause license that can be
-// found in the LICENSE file.
+// Use of this source code is governed by the BSD 2-clause
+// license that can be found in the LICENSE file.
 
 package sasl
 
@@ -9,15 +9,6 @@ import (
 	"errors"
 	"testing"
 )
-
-type zeroReader struct{}
-
-func (zeroReader) Read(p []byte) (int, error) {
-	for i := 0; i < cap(p); i++ {
-		p[i] = 0
-	}
-	return cap(p), nil
-}
 
 func TestNoncePanicsIfTooShort(t *testing.T) {
 	func() {

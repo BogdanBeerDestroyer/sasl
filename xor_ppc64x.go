@@ -4,6 +4,7 @@
 
 // This file was borrowed from Go's crypto/cipher package.
 
+//go:build ppc64 || ppc64le
 // +build ppc64 ppc64le
 
 package sasl
