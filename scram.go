@@ -7,6 +7,7 @@ package sasl
 import (
 	"bytes"
 	"crypto/hmac"
+	"crypto/tls"
 	"encoding/base64"
 	"errors"
 	"hash"
@@ -17,7 +18,10 @@ import (
 )
 
 const (
-	gs2HeaderCBSupport         = "p=tls-unique,"
+	exporterLen                = 32
+	exporterLabel              = "EXPORTER-Channel-Binding"
+	gs2HeaderCBSupportUnique   = "p=tls-unique,"
+	gs2HeaderCBSupportExporter = "p=tls-exporter,"
 	gs2HeaderNoServerCBSupport = "y,"
 	gs2HeaderNoCBSupport       = "n,"
 )
@@ -32,13 +36,18 @@ const noncerandlen = 16
 
 func getGS2Header(name string, n *Negotiator) (gs2Header []byte) {
 	_, _, identity := n.Credentials()
+	tlsState := n.TLSState()
 	switch {
-	case n.TLSState() == nil || !strings.HasSuffix(name, "-PLUS"):
+	case tlsState == nil || !strings.HasSuffix(name, "-PLUS"):
 		// We do not support channel binding
 		gs2Header = []byte(gs2HeaderNoCBSupport)
 	case n.State()&RemoteCB == RemoteCB:
 		// We support channel binding and the server does too
-		gs2Header = []byte(gs2HeaderCBSupport)
+		if tlsState.Version >= tls.VersionTLS13 {
+			gs2Header = []byte(gs2HeaderCBSupportExporter)
+		} else {
+			gs2Header = []byte(gs2HeaderCBSupportUnique)
+		}
 	case n.State()&RemoteCB != RemoteCB:
 		// We support channel binding but the server does not
 		gs2Header = []byte(gs2HeaderNoServerCBSupport)
@@ -161,11 +170,28 @@ func scramClientNext(name string, fn func() hash.Hash, m *Negotiator, challenge 
 		gs2Header := getGS2Header(name, m)
 		tlsState := m.TLSState()
 		var channelBinding []byte
-		if strings.HasSuffix(name, "-PLUS") {
+		switch plus := strings.HasSuffix(name, "-PLUS"); {
+		case plus && tlsState == nil:
+			err = errors.New("sasl: SCRAM with channel binding requires a TLS connection")
+			return
+		case bytes.Contains(gs2Header, []byte(gs2HeaderCBSupportExporter)):
+			keying, err := tlsState.ExportKeyingMaterial(exporterLabel, nil, exporterLen)
+			if err != nil {
+				return false, nil, nil, err
+			}
+			if len(keying) == 0 {
+				err = errors.New("sasl: SCRAM with channel binding requires valid TLS keying material")
+				return false, nil, nil, err
+			}
+			channelBinding = make([]byte, 2+base64.StdEncoding.EncodedLen(len(gs2Header)+len(keying)))
+			channelBinding[0] = 'c'
+			channelBinding[1] = '='
+			base64.StdEncoding.Encode(channelBinding[2:], append(gs2Header, keying...))
+		case bytes.Contains(gs2Header, []byte(gs2HeaderCBSupportUnique)):
 			//lint:ignore SA1019 TLS unique must be supported by SCRAM
-			if tlsState == nil || len(tlsState.TLSUnique) == 0 {
-				err = errors.New("sasl: SCRAM with channel binding requires a TLS connection state with valid tls-unique data")
-				return
+			if len(tlsState.TLSUnique) == 0 {
+				err = errors.New("sasl: SCRAM with channel binding requires valid tls-unique data")
+				return false, nil, nil, err
 			}
 			channelBinding = make(
 				[]byte,
@@ -176,7 +202,7 @@ func scramClientNext(name string, fn func() hash.Hash, m *Negotiator, challenge 
 			channelBinding[1] = '='
 			//lint:ignore SA1019 TLS unique must be supported by SCRAM
 			base64.StdEncoding.Encode(channelBinding[2:], append(gs2Header, tlsState.TLSUnique...))
-		} else {
+		default:
 			channelBinding = make(
 				[]byte,
 				2+base64.StdEncoding.EncodedLen(len(gs2Header)),

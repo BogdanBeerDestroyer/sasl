@@ -129,7 +129,7 @@ var saslTestCases = [...]saslTest{
 				return []byte("user"), []byte("pencil"), []byte{}
 			}),
 			RemoteMechanisms("SCRAM-SHA-1-PLUS"),
-			TLSState(tls.ConnectionState{TLSUnique: []byte{0, 1, 2, 3, 4}}),
+			TLSState(tls.ConnectionState{Version: tls.VersionTLS11, TLSUnique: []byte{0, 1, 2, 3, 4}}),
 		},
 		steps: []saslStep{
 			{
@@ -324,7 +324,7 @@ var saslTestCases = [...]saslTest{
 			Credentials(func() ([]byte, []byte, []byte) {
 				return []byte("user"), []byte("pencil"), []byte("admin")
 			}),
-			TLSState(tls.ConnectionState{TLSUnique: []byte{}}),
+			TLSState(tls.ConnectionState{Version: tls.VersionTLS12, TLSUnique: []byte{}}),
 		},
 		steps: []saslStep{
 			{
@@ -375,6 +375,35 @@ var saslTestCases = [...]saslTest{
 			{
 				challenge: []byte(`r=fyko+d2lbbFgONRv9qkxdawL%hvYDpWUa2RaTCAfuxFIlj)hNlF$k0,s=W22ZaJ0SNY7soEsUEjb6gQ==,i=4096`),
 				clientErr: true,
+			},
+		},
+	},
+	19: {
+		skipServer: true,
+		// Mechanism is not SCRAM-SHA-1-PLUS, but has TLS 1.3 connstate and remote
+		// mechanisms.
+		mechanism: scram("SCRAM-SHA-1", sha1.New),
+		clientOpts: []Option{
+			Credentials(func() ([]byte, []byte, []byte) {
+				return []byte("user"), []byte("pencil"), []byte{}
+			}),
+			RemoteMechanisms("SCRAM-SHA-1-PLUS", "SCRAM-SHA-1"),
+			TLSState(tls.ConnectionState{Version: tls.VersionTLS13}),
+		},
+		steps: []saslStep{
+			{
+				resp: []byte(`n,,n=user,r=fyko+d2lbbFgONRv9qkxdawL`),
+				more: true,
+			},
+			{
+				challenge: []byte(`r=fyko+d2lbbFgONRv9qkxdawL3rfcNHYJY1ZVvWVs7j,s=QSXCR+Q6sek8bf92,i=4096`),
+				resp:      []byte(`c=biws,r=fyko+d2lbbFgONRv9qkxdawL3rfcNHYJY1ZVvWVs7j,p=v0X8v3Bz2T0CJGbJQyF0X+HI4Ts=`),
+				more:      true,
+			},
+			{
+				challenge: []byte(`v=rmF9pqV8S7suAoZWja4dJRkFsKQ=`),
+				resp:      nil,
+				more:      false,
 			},
 		},
 	},
