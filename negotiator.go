@@ -44,7 +44,6 @@ const (
 func NewClient(m Mechanism, opts ...Option) *Negotiator {
 	machine := &Negotiator{
 		mechanism: m,
-		nonce:     nonce(noncerandlen, rand.Reader),
 	}
 	getOpts(machine, opts...)
 	for _, rname := range machine.remoteMechanisms {
@@ -53,6 +52,9 @@ func NewClient(m Mechanism, opts ...Option) *Negotiator {
 			machine.state |= RemoteCB
 			return machine
 		}
+	}
+	if len(machine.nonce) == 0 {
+		machine.nonce = nonce(noncerandlen, rand.Reader)
 	}
 	return machine
 }
@@ -64,7 +66,6 @@ func NewClient(m Mechanism, opts ...Option) *Negotiator {
 func NewServer(m Mechanism, permissions func(*Negotiator) bool, opts ...Option) *Negotiator {
 	machine := &Negotiator{
 		mechanism: m,
-		nonce:     nonce(noncerandlen, rand.Reader),
 		state:     AuthTextSent | Receiving,
 	}
 	getOpts(machine, opts...)
@@ -77,6 +78,9 @@ func NewServer(m Mechanism, permissions func(*Negotiator) bool, opts ...Option) 
 			machine.state |= RemoteCB
 			return machine
 		}
+	}
+	if len(machine.nonce) == 0 {
+		machine.nonce = nonce(noncerandlen, rand.Reader)
 	}
 	return machine
 }

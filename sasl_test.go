@@ -2,14 +2,14 @@
 // Use of this source code is governed by the BSD 2-clause
 // license that can be found in the LICENSE file.
 
-package sasl
+package sasl_test
 
 import (
-	"crypto/sha1"
-	"crypto/sha256"
 	"crypto/tls"
 	"strconv"
 	"testing"
+
+	"mellium.im/sasl"
 )
 
 // saslStep is from the perspective of a client, challenge is issued by the
@@ -24,24 +24,24 @@ type saslStep struct {
 }
 
 type saslTest struct {
-	mechanism  Mechanism
-	clientOpts []Option
-	serverOpts []Option
-	perm       func(*Negotiator) bool
+	mechanism  sasl.Mechanism
+	clientOpts []sasl.Option
+	serverOpts []sasl.Option
+	perm       func(*sasl.Negotiator) bool
 	steps      []saslStep
 	skipClient bool
 	skipServer bool
 }
 
-func getStepName(n *Negotiator) string {
-	switch n.State() & StepMask {
-	case Initial:
+func getStepName(n *sasl.Negotiator) string {
+	switch n.State() & sasl.StepMask {
+	case sasl.Initial:
 		return "Initial"
-	case AuthTextSent:
+	case sasl.AuthTextSent:
 		return "AuthTextSent"
-	case ResponseSent:
+	case sasl.ResponseSent:
 		return "ResponseSent"
-	case ValidServerResponse:
+	case sasl.ValidServerResponse:
 		return "ValidServerResponse"
 	default:
 		panic("Step part of state byte apparently has too many bits")
@@ -51,19 +51,19 @@ func getStepName(n *Negotiator) string {
 var (
 	plainResp       = []byte("Ursel\x00Kurt\x00xipj3plmq")
 	testNonce       = []byte("fyko+d2lbbFgONRv9qkxdawL")
-	plainClientOpts = []Option{Credentials(func() ([]byte, []byte, []byte) {
+	plainClientOpts = []sasl.Option{sasl.Credentials(func() ([]byte, []byte, []byte) {
 		return []byte("Kurt"), []byte("xipj3plmq"), []byte("Ursel")
 	})}
 )
 
-func acceptAll(_ *Negotiator) bool {
+func acceptAll(_ *sasl.Negotiator) bool {
 	return true
 }
 
 var saslTestCases = [...]saslTest{
 	0: {
 		skipServer: true,
-		mechanism:  plain,
+		mechanism:  sasl.Plain,
 		clientOpts: plainClientOpts,
 		steps: []saslStep{
 			{resp: plainResp, more: false},
@@ -72,8 +72,8 @@ var saslTestCases = [...]saslTest{
 	},
 	1: {
 		skipServer: true,
-		mechanism:  scram("SCRAM-SHA-1", sha1.New),
-		clientOpts: []Option{Credentials(func() ([]byte, []byte, []byte) {
+		mechanism:  sasl.ScramSha1,
+		clientOpts: []sasl.Option{sasl.Credentials(func() ([]byte, []byte, []byte) {
 			return []byte("user"), []byte("pencil"), []byte{}
 		})},
 		steps: []saslStep{
@@ -95,14 +95,14 @@ var saslTestCases = [...]saslTest{
 	},
 	2: {
 		skipServer: true,
-		// Mechanism is not SCRAM-SHA-1-PLUS, but has connstate and remote mechanisms.
-		mechanism: scram("SCRAM-SHA-1", sha1.New),
-		clientOpts: []Option{
-			Credentials(func() ([]byte, []byte, []byte) {
+		// sasl.Mechanism is not SCRAM-SHA-1-PLUS, but has connstate and remote mechanisms.
+		mechanism: sasl.ScramSha1,
+		clientOpts: []sasl.Option{
+			sasl.Credentials(func() ([]byte, []byte, []byte) {
 				return []byte("user"), []byte("pencil"), []byte{}
 			}),
-			RemoteMechanisms("SCRAM-SHA-1-PLUS", "SCRAM-SHA-1"),
-			TLSState(tls.ConnectionState{TLSUnique: []byte{0, 1, 2, 3, 4}}),
+			sasl.RemoteMechanisms("SCRAM-SHA-1-PLUS", "SCRAM-SHA-1"),
+			sasl.TLSState(tls.ConnectionState{TLSUnique: []byte{0, 1, 2, 3, 4}}),
 		},
 		steps: []saslStep{
 			{
@@ -123,13 +123,13 @@ var saslTestCases = [...]saslTest{
 	},
 	3: {
 		skipServer: true,
-		mechanism:  scram("SCRAM-SHA-1-PLUS", sha1.New),
-		clientOpts: []Option{
-			Credentials(func() ([]byte, []byte, []byte) {
+		mechanism:  sasl.ScramSha1Plus,
+		clientOpts: []sasl.Option{
+			sasl.Credentials(func() ([]byte, []byte, []byte) {
 				return []byte("user"), []byte("pencil"), []byte{}
 			}),
-			RemoteMechanisms("SCRAM-SHA-1-PLUS"),
-			TLSState(tls.ConnectionState{Version: tls.VersionTLS11, TLSUnique: []byte{0, 1, 2, 3, 4}}),
+			sasl.RemoteMechanisms("SCRAM-SHA-1-PLUS"),
+			sasl.TLSState(tls.ConnectionState{Version: tls.VersionTLS11, TLSUnique: []byte{0, 1, 2, 3, 4}}),
 		},
 		steps: []saslStep{
 			{
@@ -150,8 +150,8 @@ var saslTestCases = [...]saslTest{
 	},
 	4: {
 		skipServer: true,
-		mechanism:  scram("SCRAM-SHA-256", sha256.New),
-		clientOpts: []Option{Credentials(func() ([]byte, []byte, []byte) {
+		mechanism:  sasl.ScramSha256,
+		clientOpts: []sasl.Option{sasl.Credentials(func() ([]byte, []byte, []byte) {
 			return []byte("user"), []byte("pencil"), []byte{}
 		})},
 		steps: []saslStep{
@@ -173,13 +173,13 @@ var saslTestCases = [...]saslTest{
 	},
 	5: {
 		skipServer: true,
-		mechanism:  scram("SCRAM-SHA-256-PLUS", sha256.New),
-		clientOpts: []Option{
-			Credentials(func() ([]byte, []byte, []byte) {
+		mechanism:  sasl.ScramSha256Plus,
+		clientOpts: []sasl.Option{
+			sasl.Credentials(func() ([]byte, []byte, []byte) {
 				return []byte("user"), []byte("pencil"), []byte("admin")
 			}),
-			RemoteMechanisms("SCRAM-SOMETHING", "SCRAM-SHA-256-PLUS"),
-			TLSState(tls.ConnectionState{TLSUnique: []byte{0, 1, 2, 3, 4}}),
+			sasl.RemoteMechanisms("SCRAM-SOMETHING", "SCRAM-SHA-256-PLUS"),
+			sasl.TLSState(tls.ConnectionState{TLSUnique: []byte{0, 1, 2, 3, 4}}),
 		},
 		steps: []saslStep{
 			{
@@ -200,13 +200,13 @@ var saslTestCases = [...]saslTest{
 	},
 	6: {
 		skipServer: true,
-		mechanism:  scram("SCRAM-SHA-1-PLUS", sha1.New),
-		clientOpts: []Option{
-			Credentials(func() ([]byte, []byte, []byte) {
+		mechanism:  sasl.ScramSha1Plus,
+		clientOpts: []sasl.Option{
+			sasl.Credentials(func() ([]byte, []byte, []byte) {
 				return []byte(",=,="), []byte("password"), []byte{}
 			}),
-			RemoteMechanisms("SCRAM-SHA-1-PLUS"),
-			TLSState(tls.ConnectionState{TLSUnique: []byte("finishedmessage")}),
+			sasl.RemoteMechanisms("SCRAM-SHA-1-PLUS"),
+			sasl.TLSState(tls.ConnectionState{TLSUnique: []byte("finishedmessage")}),
 		},
 		steps: []saslStep{
 			{
@@ -227,15 +227,15 @@ var saslTestCases = [...]saslTest{
 	},
 	7: {
 		skipClient: true,
-		mechanism:  plain,
+		mechanism:  sasl.Plain,
 		perm:       acceptAll,
 		steps: []saslStep{
 			{resp: []byte("\x00Ursel\x00Kurt\x00xipj3plmq"), serverErr: true, more: false},
 		},
 	},
 	8: {
-		mechanism: plain,
-		perm: func(n *Negotiator) bool {
+		mechanism: sasl.Plain,
+		perm: func(n *sasl.Negotiator) bool {
 			user, pass, ident := n.Credentials()
 			switch {
 			case string(user) != "Kurt":
@@ -253,8 +253,8 @@ var saslTestCases = [...]saslTest{
 		},
 	},
 	9: {
-		mechanism: plain,
-		perm: func(n *Negotiator) bool {
+		mechanism: sasl.Plain,
+		perm: func(n *sasl.Negotiator) bool {
 			user, _, _ := n.Credentials()
 			return string(user) == "FAIL"
 		},
@@ -264,8 +264,8 @@ var saslTestCases = [...]saslTest{
 		},
 	},
 	10: {
-		mechanism: plain,
-		perm: func(n *Negotiator) bool {
+		mechanism: sasl.Plain,
+		perm: func(n *sasl.Negotiator) bool {
 			_, pass, _ := n.Credentials()
 			return string(pass) == "FAIL"
 		},
@@ -275,8 +275,8 @@ var saslTestCases = [...]saslTest{
 		},
 	},
 	11: {
-		mechanism: plain,
-		perm: func(n *Negotiator) bool {
+		mechanism: sasl.Plain,
+		perm: func(n *sasl.Negotiator) bool {
 			_, _, ident := n.Credentials()
 			return string(ident) == "FAIL"
 		},
@@ -286,7 +286,7 @@ var saslTestCases = [...]saslTest{
 		},
 	},
 	12: {
-		mechanism:  plain,
+		mechanism:  sasl.Plain,
 		clientOpts: plainClientOpts,
 		steps: []saslStep{
 			{resp: plainResp, serverErr: true, more: false},
@@ -294,78 +294,62 @@ var saslTestCases = [...]saslTest{
 	},
 	13: {
 		skipClient: true,
-		mechanism:  scram("", nil),
-		perm:       acceptAll,
-		steps: []saslStep{
-			{serverErr: true, more: false},
-		},
-	},
-	14: {
-		skipClient: true,
-		mechanism:  scram("", nil),
-		perm:       acceptAll,
-		steps: []saslStep{
-			{resp: []byte{}, challenge: nil, serverErr: true, more: false},
-		},
-	},
-	15: {
-		skipClient: true,
-		mechanism:  plain,
+		mechanism:  sasl.Plain,
 		perm:       acceptAll,
 		steps: []saslStep{
 			{resp: []byte("Ursel\x00Kurt\x00xipj3plmq\x00"), serverErr: true, more: false},
 		},
 	},
+	14: {
+		skipServer: true,
+		mechanism:  sasl.ScramSha256Plus,
+		clientOpts: []sasl.Option{
+			sasl.RemoteMechanisms("SCRAM-SHA-256-PLUS"),
+			sasl.Credentials(func() ([]byte, []byte, []byte) {
+				return []byte("user"), []byte("pencil"), []byte("admin")
+			}),
+			sasl.TLSState(tls.ConnectionState{Version: tls.VersionTLS12, TLSUnique: []byte{}}),
+		},
+		steps: []saslStep{
+			{
+				resp: []byte("p=tls-unique,a=admin,n=user,r=fyko+d2lbbFgONRv9qkxdawL"),
+				more: true,
+			},
+			{
+				challenge: []byte(`r=fyko+d2lbbFgONRv9qkxdawL%hvYDpWUa2RaTCAfuxFIlj)hNlF$k0,s=W22ZaJ0SNY7soEsUEjb6gQ==,i=4096`),
+				clientErr: true,
+			},
+		},
+	},
+	15: {
+		skipServer: true,
+		mechanism:  sasl.ScramSha256Plus,
+		clientOpts: []sasl.Option{
+			sasl.RemoteMechanisms("SCRAM-SHA-256-PLUS"),
+			sasl.Credentials(func() ([]byte, []byte, []byte) {
+				return []byte("user"), []byte("pencil"), []byte("admin")
+			}),
+			sasl.TLSState(tls.ConnectionState{TLSUnique: nil}),
+		},
+		steps: []saslStep{
+			{
+				resp: []byte("p=tls-unique,a=admin,n=user,r=fyko+d2lbbFgONRv9qkxdawL"),
+				more: true,
+			},
+			{
+				challenge: []byte(`r=fyko+d2lbbFgONRv9qkxdawL%hvYDpWUa2RaTCAfuxFIlj)hNlF$k0,s=W22ZaJ0SNY7soEsUEjb6gQ==,i=4096`),
+				clientErr: true,
+			},
+		},
+	},
 	16: {
 		skipServer: true,
-		mechanism:  scram("SCRAM-SHA-256-PLUS", sha256.New),
-		clientOpts: []Option{
-			RemoteMechanisms("SCRAM-SHA-256-PLUS"),
-			Credentials(func() ([]byte, []byte, []byte) {
+		mechanism:  sasl.ScramSha256Plus,
+		clientOpts: []sasl.Option{
+			sasl.Credentials(func() ([]byte, []byte, []byte) {
 				return []byte("user"), []byte("pencil"), []byte("admin")
 			}),
-			TLSState(tls.ConnectionState{Version: tls.VersionTLS12, TLSUnique: []byte{}}),
-		},
-		steps: []saslStep{
-			{
-				resp: []byte("p=tls-unique,a=admin,n=user,r=fyko+d2lbbFgONRv9qkxdawL"),
-				more: true,
-			},
-			{
-				challenge: []byte(`r=fyko+d2lbbFgONRv9qkxdawL%hvYDpWUa2RaTCAfuxFIlj)hNlF$k0,s=W22ZaJ0SNY7soEsUEjb6gQ==,i=4096`),
-				clientErr: true,
-			},
-		},
-	},
-	17: {
-		skipServer: true,
-		mechanism:  scram("SCRAM-SHA-256-PLUS", sha256.New),
-		clientOpts: []Option{
-			RemoteMechanisms("SCRAM-SHA-256-PLUS"),
-			Credentials(func() ([]byte, []byte, []byte) {
-				return []byte("user"), []byte("pencil"), []byte("admin")
-			}),
-			TLSState(tls.ConnectionState{TLSUnique: nil}),
-		},
-		steps: []saslStep{
-			{
-				resp: []byte("p=tls-unique,a=admin,n=user,r=fyko+d2lbbFgONRv9qkxdawL"),
-				more: true,
-			},
-			{
-				challenge: []byte(`r=fyko+d2lbbFgONRv9qkxdawL%hvYDpWUa2RaTCAfuxFIlj)hNlF$k0,s=W22ZaJ0SNY7soEsUEjb6gQ==,i=4096`),
-				clientErr: true,
-			},
-		},
-	},
-	18: {
-		skipServer: true,
-		mechanism:  scram("SCRAM-SHA-256-PLUS", sha256.New),
-		clientOpts: []Option{
-			Credentials(func() ([]byte, []byte, []byte) {
-				return []byte("user"), []byte("pencil"), []byte("admin")
-			}),
-			RemoteMechanisms("SCRAM-SHA-256-PLUS"),
+			sasl.RemoteMechanisms("SCRAM-SHA-256-PLUS"),
 		},
 		steps: []saslStep{
 			{
@@ -378,17 +362,17 @@ var saslTestCases = [...]saslTest{
 			},
 		},
 	},
-	19: {
+	17: {
 		skipServer: true,
-		// Mechanism is not SCRAM-SHA-1-PLUS, but has TLS 1.3 connstate and remote
+		// sasl.Mechanism is not SCRAM-SHA-1-PLUS, but has TLS 1.3 connstate and remote
 		// mechanisms.
-		mechanism: scram("SCRAM-SHA-1", sha1.New),
-		clientOpts: []Option{
-			Credentials(func() ([]byte, []byte, []byte) {
+		mechanism: sasl.ScramSha1,
+		clientOpts: []sasl.Option{
+			sasl.Credentials(func() ([]byte, []byte, []byte) {
 				return []byte("user"), []byte("pencil"), []byte{}
 			}),
-			RemoteMechanisms("SCRAM-SHA-1-PLUS", "SCRAM-SHA-1"),
-			TLSState(tls.ConnectionState{Version: tls.VersionTLS13}),
+			sasl.RemoteMechanisms("SCRAM-SHA-1-PLUS", "SCRAM-SHA-1"),
+			sasl.TLSState(tls.ConnectionState{Version: tls.VersionTLS13}),
 		},
 		steps: []saslStep{
 			{
@@ -409,15 +393,15 @@ var saslTestCases = [...]saslTest{
 	},
 }
 
-func testClient(t *testing.T, client *Negotiator, tc saslTest, run int) {
+func testClient(t *testing.T, client *sasl.Negotiator, tc saslTest, run int) {
 	t.Run("Client", func(t *testing.T) {
 		for _, step := range tc.steps {
 			more, resp, err := client.Step(step.challenge)
 			switch {
-			case err != nil && client.State()&Errored != Errored:
+			case err != nil && client.State()&sasl.Errored != sasl.Errored:
 				t.Logf("Run %d, Step %s", run, getStepName(client))
 				t.Fatalf("State machine internal error state was not set, got error: %v", err)
-			case err == nil && client.State()&Errored == Errored:
+			case err == nil && client.State()&sasl.Errored == sasl.Errored:
 				t.Logf("Run %d, Step %s", run, getStepName(client))
 				t.Fatal("State machine internal error state was set, but no error was returned")
 			case err == nil && step.clientErr:
@@ -439,15 +423,15 @@ func testClient(t *testing.T, client *Negotiator, tc saslTest, run int) {
 	})
 }
 
-func testServer(t *testing.T, server *Negotiator, tc saslTest, run int) {
+func testServer(t *testing.T, server *sasl.Negotiator, tc saslTest, run int) {
 	t.Run("Server", func(t *testing.T) {
 		for _, step := range tc.steps {
 			more, challenge, err := server.Step(step.resp)
 			switch {
-			case err != nil && server.State()&Errored != Errored:
+			case err != nil && server.State()&sasl.Errored != sasl.Errored:
 				t.Logf("Run %d, Step %s", run, getStepName(server))
 				t.Fatalf("State machine internal error state was not set, got error: %v", err)
-			case err == nil && server.State()&Errored == Errored:
+			case err == nil && server.State()&sasl.Errored == sasl.Errored:
 				t.Logf("Run %d, Step %s", run, getStepName(server))
 				t.Fatal("State machine internal error state was set, but no error was returned")
 			case err == nil && step.serverErr:
@@ -469,21 +453,26 @@ func testServer(t *testing.T, server *Negotiator, tc saslTest, run int) {
 	})
 }
 
+type zeroReader struct{}
+
+func (zeroReader) Read(p []byte) (int, error) {
+	for i := range p {
+		p[i] = 0
+	}
+	return len(p), nil
+}
+
 func TestSASL(t *testing.T) {
 	for i, tc := range saslTestCases {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			client := NewClient(tc.mechanism, tc.clientOpts...)
-			server := NewServer(tc.mechanism, tc.perm, tc.serverOpts...)
+			client := sasl.NewClient(tc.mechanism, tc.clientOpts...)
+			server := sasl.NewServer(tc.mechanism, tc.perm, tc.serverOpts...)
 
 			// Run each test twice to make sure that Reset actually sets the state back
 			// to the initial state.
 			for run := 1; run < 3; run++ {
-				// Reset the nonce to the one used by all of our test vectors.
-				// TODO: this is an internal state detail. Instead of mutating it, make
-				// an option to set the RNG and pass in a dummy one.
-				client.nonce = testNonce
-				server.nonce = testNonce
-
+				sasl.Nonce(testNonce)(client)
+				sasl.Nonce(testNonce)(server)
 				if !tc.skipClient {
 					testClient(t, client, tc, run)
 				}

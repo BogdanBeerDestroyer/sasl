@@ -31,6 +31,14 @@ func TLSState(cs tls.ConnectionState) Option {
 	}
 }
 
+// nonce overrides the nonce used for authentication attempts.
+// This defaults to a random value and should not be changed.
+func setNonce(v []byte) Option {
+	return func(n *Negotiator) {
+		n.nonce = v
+	}
+}
+
 // RemoteMechanisms sets a list of mechanisms supported by the remote client or
 // server with which the state machine will be negotiating.
 // It is used to determine if the server supports channel binding.
