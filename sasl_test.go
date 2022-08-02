@@ -5,6 +5,7 @@
 package sasl_test
 
 import (
+	"bytes"
 	"crypto/tls"
 	"strconv"
 	"testing"
@@ -33,7 +34,7 @@ type saslTest struct {
 	skipServer bool
 }
 
-func getStepName(n *sasl.Negotiator) string {
+func getStepName(n negotiator) string {
 	switch n.State() & sasl.StepMask {
 	case sasl.Initial:
 		return "Initial"
@@ -248,6 +249,8 @@ var saslTestCases = [...]saslTest{
 			return true
 		},
 		clientOpts: plainClientOpts,
+		// serverOpts is only set to smuggle the password into integration tests.
+		serverOpts: plainClientOpts,
 		steps: []saslStep{
 			{resp: plainResp, more: false},
 		},
@@ -393,73 +396,65 @@ var saslTestCases = [...]saslTest{
 	},
 }
 
+type negotiator interface {
+	Step(challenge []byte) (more bool, resp []byte, err error)
+	State() sasl.State
+}
+
 func testClient(t *testing.T, client *sasl.Negotiator, tc saslTest, run int) {
-	t.Run("Client", func(t *testing.T) {
-		for _, step := range tc.steps {
-			more, resp, err := client.Step(step.challenge)
-			switch {
-			case err != nil && client.State()&sasl.Errored != sasl.Errored:
-				t.Logf("Run %d, Step %s", run, getStepName(client))
-				t.Fatalf("State machine internal error state was not set, got error: %v", err)
-			case err == nil && client.State()&sasl.Errored == sasl.Errored:
-				t.Logf("Run %d, Step %s", run, getStepName(client))
-				t.Fatal("State machine internal error state was set, but no error was returned")
-			case err == nil && step.clientErr:
-				// There was no error, but we expect one
-				t.Logf("Run %d, Step %s", run, getStepName(client))
-				t.Fatal("Expected SASL step to error")
-			case err != nil && !step.clientErr:
-				// There was an error, but we didn't expect one
-				t.Logf("Run %d, Step %s", run, getStepName(client))
-				t.Fatalf("Got unexpected SASL error: %v", err)
-			case string(step.resp) != string(resp):
-				t.Logf("Run %d, Step %s", run, getStepName(client))
-				t.Fatalf("Got invalid response text:\nexpected `%s'\n     got `%s'", step.resp, resp)
-			case more != step.more:
-				t.Logf("Run %d, Step %s", run, getStepName(client))
-				t.Fatalf("Got unexpected value for more: %v", more)
-			}
+	for _, step := range tc.steps {
+		more, resp, err := client.Step(step.challenge)
+		switch {
+		case err != nil && client.State()&sasl.Errored != sasl.Errored:
+			t.Logf("Run %d, Step %s", run, getStepName(client))
+			t.Fatalf("State machine internal error state was not set, got error: %v", err)
+		case err == nil && client.State()&sasl.Errored == sasl.Errored:
+			t.Logf("Run %d, Step %s", run, getStepName(client))
+			t.Fatal("State machine internal error state was set, but no error was returned")
+		case err == nil && step.clientErr:
+			// There was no error, but we expect one
+			t.Logf("Run %d, Step %s", run, getStepName(client))
+			t.Fatal("Expected SASL step to error")
+		case err != nil && !step.clientErr:
+			// There was an error, but we didn't expect one
+			t.Logf("Run %d, Step %s", run, getStepName(client))
+			t.Fatalf("Got unexpected SASL error: %v", err)
+		case !bytes.Equal(step.resp, resp):
+			t.Logf("Run %d, Step %s", run, getStepName(client))
+			t.Fatalf("Got invalid response text:\nexpected `%s'\n     got `%s'", step.resp, resp)
+		case more != step.more:
+			t.Logf("Run %d, Step %s", run, getStepName(client))
+			t.Fatalf("Got unexpected value for more: %v", more)
 		}
-	})
+	}
 }
 
 func testServer(t *testing.T, server *sasl.Negotiator, tc saslTest, run int) {
-	t.Run("Server", func(t *testing.T) {
-		for _, step := range tc.steps {
-			more, challenge, err := server.Step(step.resp)
-			switch {
-			case err != nil && server.State()&sasl.Errored != sasl.Errored:
-				t.Logf("Run %d, Step %s", run, getStepName(server))
-				t.Fatalf("State machine internal error state was not set, got error: %v", err)
-			case err == nil && server.State()&sasl.Errored == sasl.Errored:
-				t.Logf("Run %d, Step %s", run, getStepName(server))
-				t.Fatal("State machine internal error state was set, but no error was returned")
-			case err == nil && step.serverErr:
-				// There was no error, but we expect one
-				t.Logf("Run %d, Step %s", run, getStepName(server))
-				t.Fatal("Expected SASL step to error")
-			case err != nil && !step.serverErr:
-				// There was an error, but we didn't expect one
-				t.Logf("Run %d, Step %s", run, getStepName(server))
-				t.Fatalf("Got unexpected SASL error: %v", err)
-			case string(step.challenge) != string(challenge):
-				t.Logf("Run %d, Step %s", run, getStepName(server))
-				t.Fatalf("Got invalid challenge text:\nexpected `%s'\n     got `%s'", step.challenge, challenge)
-			case more != step.more:
-				t.Logf("Run %d, Step %s", run, getStepName(server))
-				t.Fatalf("Got unexpected value for more: %v", more)
-			}
+	for _, step := range tc.steps {
+		more, challenge, err := server.Step(step.resp)
+		switch {
+		case err != nil && server.State()&sasl.Errored != sasl.Errored:
+			t.Logf("Run %d, Step %s", run, getStepName(server))
+			t.Fatalf("State machine internal error state was not set, got error: %v", err)
+		case err == nil && server.State()&sasl.Errored == sasl.Errored:
+			t.Logf("Run %d, Step %s", run, getStepName(server))
+			t.Fatal("State machine internal error state was set, but no error was returned")
+		case err == nil && step.serverErr:
+			// There was no error, but we expect one
+			t.Logf("Run %d, Step %s", run, getStepName(server))
+			t.Fatal("Expected SASL step to error")
+		case err != nil && !step.serverErr:
+			// There was an error, but we didn't expect one
+			t.Logf("Run %d, Step %s", run, getStepName(server))
+			t.Fatalf("Got unexpected SASL error: %v", err)
+		case string(step.challenge) != string(challenge):
+			t.Logf("Run %d, Step %s", run, getStepName(server))
+			t.Fatalf("Got invalid challenge text:\nexpected `%s'\n     got `%s'", step.challenge, challenge)
+		case more != step.more:
+			t.Logf("Run %d, Step %s", run, getStepName(server))
+			t.Fatalf("Got unexpected value for more: %v", more)
 		}
-	})
-}
-
-type zeroReader struct{}
-
-func (zeroReader) Read(p []byte) (int, error) {
-	for i := range p {
-		p[i] = 0
 	}
-	return len(p), nil
 }
 
 func TestSASL(t *testing.T) {
@@ -468,17 +463,23 @@ func TestSASL(t *testing.T) {
 			client := sasl.NewClient(tc.mechanism, tc.clientOpts...)
 			server := sasl.NewServer(tc.mechanism, tc.perm, tc.serverOpts...)
 
-			// Run each test twice to make sure that Reset actually sets the state back
-			// to the initial state.
+			// Run each test twice to make sure that Reset actually sets the state
+			// back to the initial state.
 			for run := 1; run < 3; run++ {
 				sasl.Nonce(testNonce)(client)
 				sasl.Nonce(testNonce)(server)
-				if !tc.skipClient {
+				t.Run("Client", func(t *testing.T) {
+					if tc.skipClient {
+						t.Skip("no client side defined for test")
+					}
 					testClient(t, client, tc, run)
-				}
-				if !tc.skipServer {
+				})
+				t.Run("Server", func(t *testing.T) {
+					if tc.skipServer {
+						t.Skip("no server side defined for test")
+					}
 					testServer(t, server, tc, run)
-				}
+				})
 
 				client.Reset()
 				server.Reset()
