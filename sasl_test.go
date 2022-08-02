@@ -404,26 +404,21 @@ type negotiator interface {
 func testClient(t *testing.T, client *sasl.Negotiator, tc saslTest, run int) {
 	for _, step := range tc.steps {
 		more, resp, err := client.Step(step.challenge)
+		t.Logf("Run %d, Step %s", run, getStepName(client))
 		switch {
 		case err != nil && client.State()&sasl.Errored != sasl.Errored:
-			t.Logf("Run %d, Step %s", run, getStepName(client))
 			t.Fatalf("State machine internal error state was not set, got error: %v", err)
 		case err == nil && client.State()&sasl.Errored == sasl.Errored:
-			t.Logf("Run %d, Step %s", run, getStepName(client))
 			t.Fatal("State machine internal error state was set, but no error was returned")
 		case err == nil && step.clientErr:
 			// There was no error, but we expect one
-			t.Logf("Run %d, Step %s", run, getStepName(client))
 			t.Fatal("Expected SASL step to error")
 		case err != nil && !step.clientErr:
 			// There was an error, but we didn't expect one
-			t.Logf("Run %d, Step %s", run, getStepName(client))
 			t.Fatalf("Got unexpected SASL error: %v", err)
 		case !bytes.Equal(step.resp, resp):
-			t.Logf("Run %d, Step %s", run, getStepName(client))
 			t.Fatalf("Got invalid response text:\nexpected `%s'\n     got `%s'", step.resp, resp)
 		case more != step.more:
-			t.Logf("Run %d, Step %s", run, getStepName(client))
 			t.Fatalf("Got unexpected value for more: %v", more)
 		}
 	}
@@ -432,26 +427,21 @@ func testClient(t *testing.T, client *sasl.Negotiator, tc saslTest, run int) {
 func testServer(t *testing.T, server *sasl.Negotiator, tc saslTest, run int) {
 	for _, step := range tc.steps {
 		more, challenge, err := server.Step(step.resp)
+		t.Logf("Run %d, Step %s", run, getStepName(server))
 		switch {
 		case err != nil && server.State()&sasl.Errored != sasl.Errored:
-			t.Logf("Run %d, Step %s", run, getStepName(server))
 			t.Fatalf("State machine internal error state was not set, got error: %v", err)
 		case err == nil && server.State()&sasl.Errored == sasl.Errored:
-			t.Logf("Run %d, Step %s", run, getStepName(server))
 			t.Fatal("State machine internal error state was set, but no error was returned")
 		case err == nil && step.serverErr:
 			// There was no error, but we expect one
-			t.Logf("Run %d, Step %s", run, getStepName(server))
 			t.Fatal("Expected SASL step to error")
 		case err != nil && !step.serverErr:
 			// There was an error, but we didn't expect one
-			t.Logf("Run %d, Step %s", run, getStepName(server))
 			t.Fatalf("Got unexpected SASL error: %v", err)
 		case string(step.challenge) != string(challenge):
-			t.Logf("Run %d, Step %s", run, getStepName(server))
 			t.Fatalf("Got invalid challenge text:\nexpected `%s'\n     got `%s'", step.challenge, challenge)
 		case more != step.more:
-			t.Logf("Run %d, Step %s", run, getStepName(server))
 			t.Fatalf("Got unexpected value for more: %v", more)
 		}
 	}
