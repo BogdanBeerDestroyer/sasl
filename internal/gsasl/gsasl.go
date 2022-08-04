@@ -173,6 +173,7 @@ func setProps(n *sasl.Negotiator, s *C.Gsasl_session) {
 	C.free(unsafe.Pointer(cIdent))
 
 	if cs := n.TLSState(); cs != nil {
+		//lint:ignore SA1019 TLS unique must be supported by SCRAM
 		b64Unique := base64.StdEncoding.EncodeToString(cs.TLSUnique)
 		cUnique := C.CString(b64Unique)
 		C.gsasl_property_set(s, C.GSASL_CB_TLS_UNIQUE, cUnique)
