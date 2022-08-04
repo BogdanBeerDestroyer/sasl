@@ -1,8 +1,6 @@
-// Copyright 2018 The Go Authors. All rights reserved.
+// Copyright 2020 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
-//go:build ppc64 || ppc64le
 
 package sasl
 
@@ -16,8 +14,10 @@ func xorBytes(dst, a, b []byte) int {
 	if n == 0 {
 		return 0
 	}
+	// make sure dst has enough space
 	_ = dst[n-1]
-	xorBytesVSX(&dst[0], &a[0], &b[0], n)
+
+	xorBytesARM64(&dst[0], &a[0], &b[0], n)
 	return n
 }
 
@@ -26,4 +26,4 @@ func xorWords(dst, a, b []byte) {
 }
 
 //go:noescape
-func xorBytesVSX(dst, a, b *byte, n int)
+func xorBytesARM64(dst, a, b *byte, n int)

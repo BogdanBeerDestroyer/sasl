@@ -2,10 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// This file was borrowed from Go's crypto/cipher package.
-
-//go:build !amd64 && !ppc64 && !ppc64le
-// +build !amd64,!ppc64,!ppc64le
+//go:build !amd64 && !ppc64 && !ppc64le && !arm64
 
 package sasl
 

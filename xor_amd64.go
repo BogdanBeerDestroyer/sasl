@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// This file was borrowed from Go's crypto/cipher package.
-
 package sasl
 
 // xorBytes xors the bytes in a and b. The destination should have enough
@@ -19,6 +17,10 @@ func xorBytes(dst, a, b []byte) int {
 	_ = dst[n-1]
 	xorBytesSSE2(&dst[0], &a[0], &b[0], n) // amd64 must have SSE2
 	return n
+}
+
+func xorWords(dst, a, b []byte) {
+	xorBytes(dst, a, b)
 }
 
 //go:noescape
