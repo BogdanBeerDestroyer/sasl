@@ -36,9 +36,6 @@ func TestIntegrationGSASL(t *testing.T) {
 				testClientIntegration(t, client, tc)
 			})
 			t.Run("Server", func(t *testing.T) {
-				if tc.skipServer {
-					t.Skip("no server side defined for integration test")
-				}
 				server, err := gsasl.NewServer(tc.mechanism, tc.perm, tc.serverOpts...)
 				if err != nil {
 					t.Fatalf("error creating gsasl server: %v", err)
@@ -80,11 +77,19 @@ func testClientIntegration(t *testing.T, client negotiator, tc saslTest) {
 }
 
 func testServerIntegration(t *testing.T, server negotiator, tc saslTest) {
-	melServer := sasl.NewServer(tc.mechanism, tc.perm, tc.serverOpts...)
+	var melServer *sasl.Negotiator
+	if !strings.HasPrefix(tc.mechanism.Name, "SCRAM-") {
+		melServer = sasl.NewServer(tc.mechanism, tc.perm, tc.serverOpts...)
+	}
 
 	for _, step := range tc.steps {
 		more, challenge, err := server.Step(step.resp)
-		melMore, melChallenge, melErr := melServer.Step(step.resp)
+		melMore := more
+		melChallenge := challenge
+		melErr := err
+		if melServer != nil {
+			melMore, melChallenge, melErr = melServer.Step(step.resp)
+		}
 		t.Logf("step %s", getStepName(server))
 		switch {
 		case (melErr == nil && err != nil) || (err == nil && melErr != nil):
