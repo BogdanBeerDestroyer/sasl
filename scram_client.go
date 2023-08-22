@@ -96,19 +96,16 @@ func scramClientNext(name string, fn func() hash.Hash, m *Negotiator, challenge 
 			channelBinding[1] = '='
 			base64.StdEncoding.Encode(channelBinding[2:], append(gs2Header, keying...))
 		case bytes.Contains(gs2Header, []byte(gs2HeaderCBSupportUnique)):
-			//lint:ignore SA1019 TLS unique must be supported by SCRAM
 			if len(tlsState.TLSUnique) == 0 {
 				err = errors.New("sasl: SCRAM with channel binding requires valid tls-unique data")
 				return false, nil, nil, err
 			}
 			channelBinding = make(
 				[]byte,
-				//lint:ignore SA1019 TLS unique must be supported by SCRAM
 				2+base64.StdEncoding.EncodedLen(len(gs2Header)+len(tlsState.TLSUnique)),
 			)
 			channelBinding[0] = 'c'
 			channelBinding[1] = '='
-			//lint:ignore SA1019 TLS unique must be supported by SCRAM
 			base64.StdEncoding.Encode(channelBinding[2:], append(gs2Header, tlsState.TLSUnique...))
 		default:
 			channelBinding = make(
