@@ -175,7 +175,6 @@ func scramClientNext(name string, fn func() hash.Hash, m *Negotiator, challenge 
 	case ResponseSent:
 		clientCalculatedServerFinalMessage := "v=" + base64.StdEncoding.EncodeToString(data.([]byte))
 		if clientCalculatedServerFinalMessage != string(challenge) {
-			err = ErrAuthn
 			return false, nil, nil, ErrAuthn
 		}
 		// Success!
