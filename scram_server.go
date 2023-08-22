@@ -165,11 +165,11 @@ func scramServerNext(name string, fn func() hash.Hash, m *Negotiator, challenge 
 
 		serverCache := data.(scramServerCache)
 
-		if bytes.Compare(message.channelBinding, serverCache.gs2Header) != 0 {
+		if !bytes.Equal(message.channelBinding, serverCache.gs2Header) {
 			return false, []byte("e=channel-bindings-dont-match"), nil, fmt.Errorf("expected %q channel-binding, but client sent %q", serverCache.gs2Header, message.channelBinding)
 		}
 
-		if bytes.Compare(message.nonce, serverCache.nonce) != 0 {
+		if !bytes.Equal(message.nonce, serverCache.nonce) {
 			return false, []byte("e=other-error"), nil, fmt.Errorf("nonce expected to be %q, but client sent %q", serverCache.nonce, message.nonce)
 		}
 

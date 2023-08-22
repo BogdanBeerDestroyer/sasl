@@ -39,7 +39,7 @@ func TestScram(t *testing.T) {
 			t.Errorf("client negotiator after first step expected to finish with more=true, but actually finished with more=false")
 		}
 		expectedFirstClientResp := []byte("n,,n=mario,r=abcdefghijklmnop")
-		if bytes.Compare(expectedFirstClientResp, firstClientResp) != 0 {
+		if !bytes.Equal(expectedFirstClientResp, firstClientResp) {
 			t.Errorf("client negotiator after first step expected to finish with response=%s, but actually finished with response=%s", expectedFirstClientResp, firstClientResp)
 		}
 
@@ -51,7 +51,7 @@ func TestScram(t *testing.T) {
 			t.Errorf("server negotiator after first step expected to finish with more=true, but actually finished with more=false")
 		}
 		expectedFirstServerResp := []byte("r=abcdefghijklmnop0123456789012345,s=c2FsdA==,i=123")
-		if bytes.Compare(expectedFirstServerResp, firstServerResp) != 0 {
+		if !bytes.Equal(expectedFirstServerResp, firstServerResp) {
 			t.Errorf("server negotiator after first step expected to finish with response=%s, but actually finished with response=%s", expectedFirstServerResp, firstServerResp)
 		}
 
@@ -63,7 +63,7 @@ func TestScram(t *testing.T) {
 			t.Errorf("client negotiator after final step expected to finish with more=true, but actually finished with more=false")
 		}
 		expectedFinalClientResp := []byte("c=biws,r=abcdefghijklmnop0123456789012345,p=qT5Jb07VyUR1i/BSy/IzaG54XvkHiO9fiSqwJBvkYxE=")
-		if bytes.Compare(expectedFinalClientResp, finalClientResp) != 0 {
+		if !bytes.Equal(expectedFinalClientResp, finalClientResp) {
 			t.Errorf("client negotiator after final step expected to finish with response=%s, but actually finished with response=%s", expectedFinalClientResp, finalClientResp)
 		}
 
@@ -75,7 +75,7 @@ func TestScram(t *testing.T) {
 			t.Errorf("server negotiator after final step expected to finish with more=false, but actually finished with more=true")
 		}
 		expectedFinalServerResp := []byte("v=yfna63FbW3txQzHcnNVdZsavvFTo0FZzA0ymVYk/Tkk=")
-		if bytes.Compare(expectedFinalServerResp, finalServerResp) != 0 {
+		if !bytes.Equal(expectedFinalServerResp, finalServerResp) {
 			t.Errorf("server negotiator after final step expected to finish with response=%s, but actually finished with response=%s", expectedFinalServerResp, finalServerResp)
 		}
 
@@ -113,7 +113,7 @@ func TestScram(t *testing.T) {
 			t.Errorf("client negotiator after first step expected to finish with more=true, but actually finished with more=false")
 		}
 		expectedFirstClientResp := []byte("n,,n=mario=3D,r=abcdefghijklmnop")
-		if bytes.Compare(expectedFirstClientResp, firstClientResp) != 0 {
+		if !bytes.Equal(expectedFirstClientResp, firstClientResp) {
 			t.Errorf("client negotiator after first step expected to finish with response=%s, but actually finished with response=%s", expectedFirstClientResp, firstClientResp)
 		}
 
@@ -146,22 +146,22 @@ func TestParseClientFirstMessage(t *testing.T) {
 		expectedNonce := []byte("nonce")
 		expectedGs2Header := []byte("y,,")
 		expectedBare := []byte("n=mario,r=nonce")
-		if bytes.Compare(expectedGs2CbindFlag, message.gs2CbindFlag) != 0 {
+		if !bytes.Equal(expectedGs2CbindFlag, message.gs2CbindFlag) {
 			t.Errorf("parseClientFirstMessage expected to finish with gs2CbindFlag=%s, but actually finished with gs2CbindFlag=%s", expectedGs2CbindFlag, message.gs2CbindFlag)
 		}
-		if bytes.Compare(expectedAuthzID, message.authzID) != 0 {
+		if !bytes.Equal(expectedAuthzID, message.authzID) {
 			t.Errorf("parseClientFirstMessage expected to finish with authzID=%s, but actually finished with authzID=%s", expectedAuthzID, message.authzID)
 		}
-		if bytes.Compare(expectedUsername, message.username) != 0 {
+		if !bytes.Equal(expectedUsername, message.username) {
 			t.Errorf("parseClientFirstMessage expected to finish with username=%s, but actually finished with username=%s", expectedUsername, message.username)
 		}
-		if bytes.Compare(expectedNonce, message.nonce) != 0 {
+		if !bytes.Equal(expectedNonce, message.nonce) {
 			t.Errorf("parseClientFirstMessage expected to finish with nonce=%s, but actually finished with nonce=%s", expectedNonce, message.nonce)
 		}
-		if bytes.Compare(expectedGs2Header, message.gs2Header) != 0 {
+		if !bytes.Equal(expectedGs2Header, message.gs2Header) {
 			t.Errorf("parseClientFirstMessage expected to finish with gs2Header=%s, but actually finished with gs2Header=%s", expectedGs2Header, message.gs2Header)
 		}
-		if bytes.Compare(expectedBare, message.bare) != 0 {
+		if !bytes.Equal(expectedBare, message.bare) {
 			t.Errorf("parseClientFirstMessage expected to finish with bare=%s, but actually finished with bare=%s", expectedBare, message.bare)
 		}
 
@@ -175,22 +175,22 @@ func TestParseClientFirstMessage(t *testing.T) {
 		expectedNonce = []byte("alsononce")
 		expectedGs2Header = []byte("n,,")
 		expectedBare = []byte("n=wario,r=alsononce")
-		if bytes.Compare(expectedGs2CbindFlag, message.gs2CbindFlag) != 0 {
+		if !bytes.Equal(expectedGs2CbindFlag, message.gs2CbindFlag) {
 			t.Errorf("parseClientFirstMessage expected to finish with gs2CbindFlag=%s, but actually finished with gs2CbindFlag=%s", expectedGs2CbindFlag, message.gs2CbindFlag)
 		}
-		if bytes.Compare(expectedAuthzID, message.authzID) != 0 {
+		if !bytes.Equal(expectedAuthzID, message.authzID) {
 			t.Errorf("parseClientFirstMessage expected to finish with authzID=%s, but actually finished with authzID=%s", expectedAuthzID, message.authzID)
 		}
-		if bytes.Compare(expectedUsername, message.username) != 0 {
+		if !bytes.Equal(expectedUsername, message.username) {
 			t.Errorf("parseClientFirstMessage expected to finish with username=%s, but actually finished with username=%s", expectedUsername, message.username)
 		}
-		if bytes.Compare(expectedNonce, message.nonce) != 0 {
+		if !bytes.Equal(expectedNonce, message.nonce) {
 			t.Errorf("parseClientFirstMessage expected to finish with nonce=%s, but actually finished with nonce=%s", expectedNonce, message.nonce)
 		}
-		if bytes.Compare(expectedGs2Header, message.gs2Header) != 0 {
+		if !bytes.Equal(expectedGs2Header, message.gs2Header) {
 			t.Errorf("parseClientFirstMessage expected to finish with gs2Header=%s, but actually finished with gs2Header=%s", expectedGs2Header, message.gs2Header)
 		}
-		if bytes.Compare(expectedBare, message.bare) != 0 {
+		if !bytes.Equal(expectedBare, message.bare) {
 			t.Errorf("parseClientFirstMessage expected to finish with bare=%s, but actually finished with bare=%s", expectedBare, message.bare)
 		}
 
@@ -204,22 +204,22 @@ func TestParseClientFirstMessage(t *testing.T) {
 		expectedNonce = []byte("alsononce")
 		expectedGs2Header = []byte("p=cb1,,")
 		expectedBare = []byte("n=wario,r=alsononce")
-		if bytes.Compare(expectedGs2CbindFlag, message.gs2CbindFlag) != 0 {
+		if !bytes.Equal(expectedGs2CbindFlag, message.gs2CbindFlag) {
 			t.Errorf("parseClientFirstMessage expected to finish with gs2CbindFlag=%s, but actually finished with gs2CbindFlag=%s", expectedGs2CbindFlag, message.gs2CbindFlag)
 		}
-		if bytes.Compare(expectedAuthzID, message.authzID) != 0 {
+		if !bytes.Equal(expectedAuthzID, message.authzID) {
 			t.Errorf("parseClientFirstMessage expected to finish with authzID=%s, but actually finished with authzID=%s", expectedAuthzID, message.authzID)
 		}
-		if bytes.Compare(expectedUsername, message.username) != 0 {
+		if !bytes.Equal(expectedUsername, message.username) {
 			t.Errorf("parseClientFirstMessage expected to finish with username=%s, but actually finished with username=%s", expectedUsername, message.username)
 		}
-		if bytes.Compare(expectedNonce, message.nonce) != 0 {
+		if !bytes.Equal(expectedNonce, message.nonce) {
 			t.Errorf("parseClientFirstMessage expected to finish with nonce=%s, but actually finished with nonce=%s", expectedNonce, message.nonce)
 		}
-		if bytes.Compare(expectedGs2Header, message.gs2Header) != 0 {
+		if !bytes.Equal(expectedGs2Header, message.gs2Header) {
 			t.Errorf("parseClientFirstMessage expected to finish with gs2Header=%s, but actually finished with gs2Header=%s", expectedGs2Header, message.gs2Header)
 		}
-		if bytes.Compare(expectedBare, message.bare) != 0 {
+		if !bytes.Equal(expectedBare, message.bare) {
 			t.Errorf("parseClientFirstMessage expected to finish with bare=%s, but actually finished with bare=%s", expectedBare, message.bare)
 		}
 	})
@@ -235,22 +235,22 @@ func TestParseClientFirstMessage(t *testing.T) {
 		expectedNonce := []byte("nonce")
 		expectedGs2Header := []byte("n,a=wario,")
 		expectedBare := []byte("n=mario,r=nonce")
-		if bytes.Compare(expectedGs2CbindFlag, message.gs2CbindFlag) != 0 {
+		if !bytes.Equal(expectedGs2CbindFlag, message.gs2CbindFlag) {
 			t.Errorf("parseClientFirstMessage expected to finish with gs2CbindFlag=%s, but actually finished with gs2CbindFlag=%s", expectedGs2CbindFlag, message.gs2CbindFlag)
 		}
-		if bytes.Compare(expectedAuthzID, message.authzID) != 0 {
+		if !bytes.Equal(expectedAuthzID, message.authzID) {
 			t.Errorf("parseClientFirstMessage expected to finish with authzID=%s, but actually finished with authzID=%s", expectedAuthzID, message.authzID)
 		}
-		if bytes.Compare(expectedUsername, message.username) != 0 {
+		if !bytes.Equal(expectedUsername, message.username) {
 			t.Errorf("parseClientFirstMessage expected to finish with username=%s, but actually finished with username=%s", expectedUsername, message.username)
 		}
-		if bytes.Compare(expectedNonce, message.nonce) != 0 {
+		if !bytes.Equal(expectedNonce, message.nonce) {
 			t.Errorf("parseClientFirstMessage expected to finish with nonce=%s, but actually finished with nonce=%s", expectedNonce, message.nonce)
 		}
-		if bytes.Compare(expectedGs2Header, message.gs2Header) != 0 {
+		if !bytes.Equal(expectedGs2Header, message.gs2Header) {
 			t.Errorf("parseClientFirstMessage expected to finish with gs2Header=%s, but actually finished with gs2Header=%s", expectedGs2Header, message.gs2Header)
 		}
-		if bytes.Compare(expectedBare, message.bare) != 0 {
+		if !bytes.Equal(expectedBare, message.bare) {
 			t.Errorf("parseClientFirstMessage expected to finish with bare=%s, but actually finished with bare=%s", expectedBare, message.bare)
 		}
 	})
@@ -266,22 +266,22 @@ func TestParseClientFirstMessage(t *testing.T) {
 		expectedNonce := []byte("nonce")
 		expectedGs2Header := []byte("n,a=😂,")
 		expectedBare := []byte("n=mario=3D,r=nonce")
-		if bytes.Compare(expectedGs2CbindFlag, message.gs2CbindFlag) != 0 {
+		if !bytes.Equal(expectedGs2CbindFlag, message.gs2CbindFlag) {
 			t.Errorf("parseClientFirstMessage expected to finish with gs2CbindFlag=%s, but actually finished with gs2CbindFlag=%s", expectedGs2CbindFlag, message.gs2CbindFlag)
 		}
-		if bytes.Compare(expectedAuthzID, message.authzID) != 0 {
+		if !bytes.Equal(expectedAuthzID, message.authzID) {
 			t.Errorf("parseClientFirstMessage expected to finish with authzID=%s, but actually finished with authzID=%s", expectedAuthzID, message.authzID)
 		}
-		if bytes.Compare(expectedUsername, message.username) != 0 {
+		if !bytes.Equal(expectedUsername, message.username) {
 			t.Errorf("parseClientFirstMessage expected to finish with username=%s, but actually finished with username=%s", expectedUsername, message.username)
 		}
-		if bytes.Compare(expectedNonce, message.nonce) != 0 {
+		if !bytes.Equal(expectedNonce, message.nonce) {
 			t.Errorf("parseClientFirstMessage expected to finish with nonce=%s, but actually finished with nonce=%s", expectedNonce, message.nonce)
 		}
-		if bytes.Compare(expectedGs2Header, message.gs2Header) != 0 {
+		if !bytes.Equal(expectedGs2Header, message.gs2Header) {
 			t.Errorf("parseClientFirstMessage expected to finish with gs2Header=%s, but actually finished with gs2Header=%s", expectedGs2Header, message.gs2Header)
 		}
-		if bytes.Compare(expectedBare, message.bare) != 0 {
+		if !bytes.Equal(expectedBare, message.bare) {
 			t.Errorf("parseClientFirstMessage expected to finish with bare=%s, but actually finished with bare=%s", expectedBare, message.bare)
 		}
 	})
@@ -298,22 +298,22 @@ func TestParseClientFirstMessage(t *testing.T) {
 		expectedNonce := []byte("nonce")
 		expectedGs2Header := []byte("n,a=wario,")
 		expectedBare := []byte("n=mario,r=nonce,iamanextension")
-		if bytes.Compare(expectedGs2CbindFlag, message.gs2CbindFlag) != 0 {
+		if !bytes.Equal(expectedGs2CbindFlag, message.gs2CbindFlag) {
 			t.Errorf("parseClientFirstMessage expected to finish with gs2CbindFlag=%s, but actually finished with gs2CbindFlag=%s", expectedGs2CbindFlag, message.gs2CbindFlag)
 		}
-		if bytes.Compare(expectedAuthzID, message.authzID) != 0 {
+		if !bytes.Equal(expectedAuthzID, message.authzID) {
 			t.Errorf("parseClientFirstMessage expected to finish with authzID=%s, but actually finished with authzID=%s", expectedAuthzID, message.authzID)
 		}
-		if bytes.Compare(expectedUsername, message.username) != 0 {
+		if !bytes.Equal(expectedUsername, message.username) {
 			t.Errorf("parseClientFirstMessage expected to finish with username=%s, but actually finished with username=%s", expectedUsername, message.username)
 		}
-		if bytes.Compare(expectedNonce, message.nonce) != 0 {
+		if !bytes.Equal(expectedNonce, message.nonce) {
 			t.Errorf("parseClientFirstMessage expected to finish with nonce=%s, but actually finished with nonce=%s", expectedNonce, message.nonce)
 		}
-		if bytes.Compare(expectedGs2Header, message.gs2Header) != 0 {
+		if !bytes.Equal(expectedGs2Header, message.gs2Header) {
 			t.Errorf("parseClientFirstMessage expected to finish with gs2Header=%s, but actually finished with gs2Header=%s", expectedGs2Header, message.gs2Header)
 		}
-		if bytes.Compare(expectedBare, message.bare) != 0 {
+		if !bytes.Equal(expectedBare, message.bare) {
 			t.Errorf("parseClientFirstMessage expected to finish with bare=%s, but actually finished with bare=%s", expectedBare, message.bare)
 		}
 	})
@@ -417,16 +417,16 @@ func TestParseClientFinalMessage(t *testing.T) {
 		expectedNonce := []byte("abc")
 		expectedProof := []byte("yz")
 		expectedMessageWithoutProof := []byte(fmt.Sprintf("c=%s,r=abc,a,s,d,f", c))
-		if bytes.Compare(expectedChannelBinding, message.channelBinding) != 0 {
+		if !bytes.Equal(expectedChannelBinding, message.channelBinding) {
 			t.Errorf("parseClientFinalMessage expected to finish with channelBinding=%s, but actually finished with channelBinding=%s", expectedChannelBinding, message.channelBinding)
 		}
-		if bytes.Compare(expectedNonce, message.nonce) != 0 {
+		if !bytes.Equal(expectedNonce, message.nonce) {
 			t.Errorf("parseClientFinalMessage expected to finish with nonce=%s, but actually finished with nonce=%s", expectedNonce, message.nonce)
 		}
-		if bytes.Compare(expectedProof, message.proof) != 0 {
+		if !bytes.Equal(expectedProof, message.proof) {
 			t.Errorf("parseClientFinalMessage expected to finish with proof=%s, but actually finished with proof=%s", expectedProof, message.proof)
 		}
-		if bytes.Compare(expectedMessageWithoutProof, message.messageWithoutProof) != 0 {
+		if !bytes.Equal(expectedMessageWithoutProof, message.messageWithoutProof) {
 			t.Errorf("parseClientFinalMessage expected to finish with messageWithoutProof=%s, but actually finished with messageWithoutProof=%s", expectedMessageWithoutProof, message.messageWithoutProof)
 		}
 
@@ -540,13 +540,13 @@ func FuzzClientFinalMessageParsing(f *testing.F) {
 			expectedChannelBinding := []byte(cbind)
 			expectedNonce := []byte(enonce)
 			expectedProof := []byte(proof)
-			if bytes.Compare(expectedChannelBinding, message.channelBinding) != 0 {
+			if !bytes.Equal(expectedChannelBinding, message.channelBinding) {
 				t.Errorf("parseClientFinalMessage expected to finish with channelBinding=%s, but actually finished with channelBinding=%s", expectedChannelBinding, message.channelBinding)
 			}
-			if bytes.Compare(expectedNonce, message.nonce) != 0 {
+			if !bytes.Equal(expectedNonce, message.nonce) {
 				t.Errorf("parseClientFinalMessage expected to finish with nonce=%s, but actually finished with nonce=%s", expectedNonce, message.nonce)
 			}
-			if bytes.Compare(expectedProof, message.proof) != 0 {
+			if !bytes.Equal(expectedProof, message.proof) {
 				t.Errorf("parseClientFinalMessage expected to finish with proof=%s, but actually finished with proof=%s", expectedProof, message.proof)
 			}
 		}
@@ -558,67 +558,67 @@ func TestEscapeSaslname(t *testing.T) {
 	t.Run("positive", func(t *testing.T) {
 		expected := []byte("=2C")
 		actual := escapeSaslname([]byte(","))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("EscapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("mario=2Cwario")
 		actual = escapeSaslname([]byte("mario,wario"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("EscapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("mario=2C")
 		actual = escapeSaslname([]byte("mario,"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("EscapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=2Cwario")
 		actual = escapeSaslname([]byte(",wario"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("EscapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=3D")
 		actual = escapeSaslname([]byte("="))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("EscapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("mario=3Dwario")
 		actual = escapeSaslname([]byte("mario=wario"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("EscapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("mario=3D")
 		actual = escapeSaslname([]byte("mario="))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("EscapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=3Dwario")
 		actual = escapeSaslname([]byte("=wario"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("EscapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=2C=3D3D")
 		actual = escapeSaslname([]byte(",=3D"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("EscapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=2C=3D")
 		actual = escapeSaslname([]byte(",="))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("EscapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=2C🙄=3D")
 		actual = escapeSaslname([]byte(",🙄="))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("EscapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 	})
@@ -637,7 +637,7 @@ func FuzzEscapeSaslname(f *testing.F) {
 			t.Errorf("EscapeSaslname result should not contain \"=\"")
 		}
 		expected := []byte(escapedFromReplacer)
-		if bytes.Compare(expected, escaped) != 0 {
+		if !bytes.Equal(expected, escaped) {
 			t.Errorf("EscapeSaslname result expected to be %q but actually %q", expected, escaped)
 		}
 	})
@@ -649,127 +649,127 @@ func TestUnescapeSaslname(t *testing.T) {
 	t.Run("positive", func(t *testing.T) {
 		expected := []byte(",")
 		actual := unescapeSaslname([]byte("=2C"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("mario,wario")
 		actual = unescapeSaslname([]byte("mario=2Cwario"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("mario,")
 		actual = unescapeSaslname([]byte("mario=2C"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte(",wario")
 		actual = unescapeSaslname([]byte("=2Cwario"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=")
 		actual = unescapeSaslname([]byte("=3D"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=")
 		actual = unescapeSaslname([]byte("=3D"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("mario=wario")
 		actual = unescapeSaslname([]byte("mario=3Dwario"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("mario=")
 		actual = unescapeSaslname([]byte("mario=3D"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=wario")
 		actual = unescapeSaslname([]byte("=3Dwario"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte(",=")
 		actual = unescapeSaslname([]byte("=2C=3D"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=2C")
 		actual = unescapeSaslname([]byte("=3D2C"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte(",3D")
 		actual = unescapeSaslname([]byte("=2C3D"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=2D")
 		actual = unescapeSaslname([]byte("=2D"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=3C")
 		actual = unescapeSaslname([]byte("=3C"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=2c")
 		actual = unescapeSaslname([]byte("=2c"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=3d")
 		actual = unescapeSaslname([]byte("=3d"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=2")
 		actual = unescapeSaslname([]byte("=2"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("=3")
 		actual = unescapeSaslname([]byte("=3"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("mario=wario")
 		actual = unescapeSaslname([]byte("mario=wario"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte("mario=2wario")
 		actual = unescapeSaslname([]byte("mario=2wario"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 
 		expected = []byte(",🙄=")
 		actual = unescapeSaslname([]byte("=2C🙄=3D"))
-		if bytes.Compare(expected, actual) != 0 {
+		if !bytes.Equal(expected, actual) {
 			t.Errorf("UnescapeSaslname expected to return %s, but actually returned %s", expected, actual)
 		}
 	})
@@ -782,7 +782,7 @@ func FuzzUnescapeSaslname(f *testing.F) {
 		unescapedFromReplacer := strings.NewReplacer("=3D", "=", "=2C", ",").Replace(escaped)
 
 		expected := []byte(unescapedFromReplacer)
-		if bytes.Compare(expected, unescaped) != 0 {
+		if !bytes.Equal(expected, unescaped) {
 			t.Errorf("UnescapeSaslname result expected to be %q but actually %q", expected, unescaped)
 		}
 	})
