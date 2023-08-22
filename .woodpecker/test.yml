@@ -1,4 +1,4 @@
-pipeline:
+steps:
   info: &info
     image: golang:${GO_VERSION}-alpine
     environment:
@@ -20,8 +20,8 @@ pipeline:
 
 matrix:
   GO_VERSION:
-    - 1.18
-    - 1.19
+    - 1.20
+    - 1.21
 
 depends_on:
   - dco
